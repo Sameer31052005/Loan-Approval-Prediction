@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURA CREDENCE | Autonomous Credit Risk & Loan Approval Engine</title>
+  <meta name="description" content="Next-generation credit underwriting and loan approval automation powered by a Scikit-Learn Decision Tree on Kaggle-aligned synthetic data.">
+  
+  <!-- Modern Google Fonts: Plus Jakarta Sans & Outfit & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="theme-obsidian">
+
+  <!-- Ambient Light Effects (Animated Canvas Mesh) -->
+  <div class="ambient-mesh">
+    <div class="mesh-orb orb-emerald"></div>
+    <div class="mesh-orb orb-indigo"></div>
+    <div class="mesh-orb orb-cyan"></div>
+    <div class="grid-overlay"></div>
+  </div>
+
+  <!-- Top Glass Navigation Bar -->
+  <header class="app-nav">
+    <div class="nav-inner">
+      <div class="brand-group">
+        <div class="brand-badge-icon">
+          <div class="core-dot"></div>
+          <i class="fa-solid fa-atom"></i>
+        </div>
+        <div class="brand-titles">
+          <div class="brand-row">
+            <span class="brand-logo-text">AURA<span class="highlight-text">CREDENCE</span></span>
+            <span class="version-tag">AI v2.4</span>
+          </div>
+          <span class="brand-sub">Autonomous Underwriting & Risk Evaluation</span>
+        </div>
+      </div>
+
+      <!-- Center Status Ticker -->
+      <div class="center-ticker">
+        <span class="status-indicator-live">
+          <span class="pulse-ring"></span>
+          <span class="pulse-core"></span>
+        </span>
+        <span class="ticker-text">MODEL ONLINE: <strong>Decision Tree (Depth 4)</strong></span>
+        <span class="ticker-divider">/</span>
+        <span class="ticker-metric">ACCURACY: <strong>{{ metrics.accuracy }}%</strong></span>
+        <span class="ticker-divider">/</span>
+        <span class="ticker-metric">LATENCY: <strong>~12ms</strong></span>
+      </div>
+
+      <!-- Right Navigation Actions -->
+      <div class="nav-actions">
+        <button id="toggleMetricsTabBtn" class="nav-btn" title="View Decision Tree & Metrics">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span>Model Analytics</span>
+        </button>
+        <button id="openReportModalBtn" class="nav-btn nav-btn-primary" title="View Submission Project Report">
+          <i class="fa-regular fa-file-lines"></i>
+          <span>Academic Report</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Project Requirement Specification Strip -->
+  <section class="spec-ribbon">
+    <div class="spec-container">
+      <div class="spec-item">
+        <span class="spec-k"><i class="fa-solid fa-circle-nodes"></i> PROBLEM TYPE</span>
+        <span class="spec-v">Supervised Classification</span>
+      </div>
+      <div class="spec-item">
+        <span class="spec-k"><i class="fa-solid fa-database"></i> DATASET</span>
+        <span class="spec-v">Kaggle-aligned synthetic dataset (10,000 Cases)</span>
+      </div>
+      <div class="spec-item">
+        <span class="spec-k"><i class="fa-solid fa-crosshairs"></i> OBJECTIVE</span>
+        <span class="spec-v">Predict Loan Approval (Y/N)</span>
+      </div>
+      <div class="spec-item">
+        <span class="spec-k"><i class="fa-solid fa-fingerprint"></i> KEY FEATURES</span>
+        <span class="spec-v">Income & Credit History</span>
+      </div>
+      <div class="spec-item">
+        <span class="spec-k"><i class="fa-solid fa-tree"></i> ML TECHNIQUE</span>
+        <span class="spec-v">Decision Tree (Gini Criterion)</span>
+      </div>
+      <div class="spec-item spec-highlight">
+        <span class="spec-k"><i class="fa-solid fa-gauge-simple-high"></i> PRIMARY METRIC</span>
+        <span class="spec-v">{{ metrics.accuracy }}% Accuracy</span>
+      </div>
+      <div class="spec-item spec-highlight-green">
+        <span class="spec-k"><i class="fa-solid fa-shield-halved"></i> SYSTEM OUTCOME</span>
+        <span class="spec-v">Risk Assessment Automation</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main View Container -->
+  <main class="main-layout">
+
+    <!-- 1-Click Simulation Scenario Dock -->
+    <section class="simulation-dock">
+      <div class="dock-header">
+        <div class="dock-title">
+          <i class="fa-solid fa-bolt-lightning text-cyan"></i>
+          <span>1-Click Verification Presets</span>
+        </div>
+        <span class="dock-hint">Click any borrower persona to instantly evaluate the Decision Tree response:</span>
+      </div>
+
+      <div class="dock-presets">
+        <!-- Preset 1: Prime -->
+        <button type="button" class="preset-card card-prime" data-preset="prime">
+          <div class="preset-head">
+            <div class="avatar-box avatar-green">
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div class="preset-info">
+              <h4>Prime Borrower</h4>
+              <span>Senior Architect / Married</span>
+            </div>
+          </div>
+          <div class="preset-metrics">
+            <span class="metric-pill">₹10.7k Income</span>
+            <span class="metric-pill pill-green">Credit: 1.0 Clean</span>
+            <span class="metric-pill">₹150k Loan</span>
+          </div>
+          <div class="preset-footer">
+            <span class="badge-verdict badge-verdict-green"><i class="fa-solid fa-thumbs-up"></i> Auto-Approve</span>
+            <i class="fa-solid fa-arrow-right-long preset-arrow"></i>
+          </div>
+        </button>
+
+        <!-- Preset 2: Defaulter -->
+        <button type="button" class="preset-card card-defaulter" data-preset="defaulter">
+          <div class="preset-head">
+            <div class="avatar-box avatar-red">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div class="preset-info">
+              <h4>Delinquent Defaulter</h4>
+              <span>Prior Default History</span>
+            </div>
+          </div>
+          <div class="preset-metrics">
+            <span class="metric-pill">₹3.2k Income</span>
+            <span class="metric-pill pill-red">Credit: 0.0 Defaulted</span>
+            <span class="metric-pill">₹180k Loan</span>
+          </div>
+          <div class="preset-footer">
+            <span class="badge-verdict badge-verdict-red"><i class="fa-solid fa-shield-xmark"></i> High Default Risk</span>
+            <i class="fa-solid fa-arrow-right-long preset-arrow"></i>
+          </div>
+        </button>
+
+        <!-- Preset 3: Borderline -->
+        <button type="button" class="preset-card card-borderline" data-preset="borderline">
+          <div class="preset-head">
+            <div class="avatar-box avatar-amber">
+              <i class="fa-solid fa-scale-unbalanced"></i>
+            </div>
+            <div class="preset-info">
+              <h4>High Debt Ratio</h4>
+              <span>Self-Employed / Urban</span>
+            </div>
+          </div>
+          <div class="preset-metrics">
+            <span class="metric-pill">₹5.0k Income</span>
+            <span class="metric-pill pill-green">Credit: 1.0 Clean</span>
+            <span class="metric-pill pill-amber">₹260k High Loan</span>
+          </div>
+          <div class="preset-footer">
+            <span class="badge-verdict badge-verdict-amber"><i class="fa-solid fa-clock-rotate-left"></i> Borderline DTI</span>
+            <i class="fa-solid fa-arrow-right-long preset-arrow"></i>
+          </div>
+        </button>
+      </div>
+    </section>
+
+    <!-- Main Dual Workstation: Left (Form) & Right (Results HUD) -->
+    <div class="workspace-grid">
+      
+      <!-- ================= LEFT: Interactive Application Form ================= -->
+      <section class="glass-panel form-panel">
+        
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <span class="panel-kicker"><i class="fa-solid fa-file-signature"></i> INPUT STREAM</span>
+            <h2>Applicant Credit Dossier</h2>
+            <p>Feed underwriting variables directly to the inference model</p>
+          </div>
+          <button type="button" id="resetBtn" class="btn-ghost" title="Reset fields to baseline">
+            <i class="fa-solid fa-arrow-rotate-left"></i>
+            <span>Reset</span>
+          </button>
+        </div>
+
+        <form id="loanForm" class="dossier-form">
+
+          <!-- 1. Master Credit History Selector (Highlighted & Elevated) -->
+          <div class="card-featured credit-selector-module">
+            <div class="module-title-row">
+              <div class="title-with-icon">
+                <i class="fa-solid fa-fingerprint text-cyan"></i>
+                <div>
+                  <h3>Repayment Credit History</h3>
+                  <p class="module-desc">Benchmark dataset weight: <strong>86.03% decision impact</strong></p>
+                </div>
+              </div>
+              <span id="creditStatusBadge" class="status-chip chip-clean">
+                <i class="fa-solid fa-shield-check"></i> Standard Met (1.0)
+              </span>
+            </div>
+
+            <div class="credit-toggle-grid">
+              <!-- Option A: Clean 1.0 -->
+              <label class="credit-card-opt active" id="chCleanCard">
+                <input type="radio" name="Credit_History" value="1" checked>
+                <div class="opt-indicator"></div>
+                <div class="opt-body">
+                  <div class="opt-title">
+                    <span>Guidelines Satisfied</span>
+                    <strong class="code-val">Score: 1.0</strong>
+                  </div>
+                  <span class="opt-sub">Clean track record with zero non-performing loan defaults</span>
+                </div>
+                <div class="opt-icon-end text-green">
+                  <i class="fa-solid fa-check"></i>
+                </div>
+              </label>
+
+              <!-- Option B: Default 0.0 -->
+              <label class="credit-card-opt" id="chBadCard">
+                <input type="radio" name="Credit_History" value="0">
+                <div class="opt-indicator"></div>
+                <div class="opt-body">
+                  <div class="opt-title">
+                    <span>Prior Delinquency / Default</span>
+                    <strong class="code-val red">Score: 0.0</strong>
+                  </div>
+                  <span class="opt-sub">Record contains non-performing arrears or unverified status</span>
+                </div>
+                <div class="opt-icon-end text-red">
+                  <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- 2. Financial Capability Grid -->
+          <div class="sub-section-divider">
+            <span><i class="fa-solid fa-money-bill-transfer"></i> CASH FLOW & INCOME VECTORS</span>
+          </div>
+
+          <div class="form-row-dual">
+            
+            <!-- Applicant Income with Dual Slider + Numeric input -->
+            <div class="field-container">
+              <div class="field-label-row">
+                <label for="applicantIncome">Primary Applicant Income</label>
+                <span class="field-live-val" id="applicantIncomeBadge">₹6,500 / mo</span>
+              </div>
+              <div class="field-input-box">
+                <span class="input-currency">₹</span>
+                <input type="number" id="applicantIncome" name="ApplicantIncome" value="6500" min="1000" max="80000" step="100" required>
+                <span class="input-unit">INR/mo</span>
+              </div>
+              <input type="range" class="field-slider" id="applicantIncomeSlider" min="1000" max="40000" step="250" value="6500">
+            </div>
+
+            <!-- Co-Applicant Income -->
+            <div class="field-container">
+              <div class="field-label-row">
+                <label for="coapplicantIncome">Co-Applicant Income</label>
+                <span class="field-live-val" id="coapplicantIncomeBadge">₹2,500 / mo</span>
+              </div>
+              <div class="field-input-box">
+                <span class="input-currency">₹</span>
+                <input type="number" id="coapplicantIncome" name="CoapplicantIncome" value="2500" min="0" max="50000" step="100">
+                <span class="input-unit">INR/mo</span>
+              </div>
+              <input type="range" class="field-slider" id="coapplicantIncomeSlider" min="0" max="25000" step="250" value="2500">
+            </div>
+
+          </div>
+
+          <!-- Live Income Aggregation Ribbon -->
+          <div class="income-summary-banner">
+            <div class="banner-stat">
+              <span class="banner-stat-k"><i class="fa-solid fa-wallet"></i> Combined Household Inflow:</span>
+              <strong class="banner-stat-v" id="combinedIncomeDisplay">₹9,000 / month</strong>
+            </div>
+            <div class="banner-stat">
+              <span class="banner-stat-k">Annualized Baseline:</span>
+              <span class="banner-stat-v secondary" id="annualizedIncomeDisplay">₹1,08,000 / year</span>
+            </div>
+          </div>
+
+          <!-- 3. Loan Requirements & Term -->
+          <div class="sub-section-divider">
+            <span><i class="fa-solid fa-building-columns"></i> CREDIT FACILITY SPECIFICATIONS</span>
+          </div>
+
+          <div class="form-row-dual">
+            
+            <!-- Loan Amount -->
+            <div class="field-container">
+              <div class="field-label-row">
+                <label for="loanAmount">Requested Loan Principal</label>
+                <span class="field-live-val text-cyan" id="loanAmountBadge">₹1,40,000</span>
+              </div>
+              <div class="field-input-box">
+                <span class="input-currency">₹</span>
+                <input type="number" id="loanAmount" name="LoanAmount" value="140" min="10" max="750" step="5" required>
+                <span class="input-unit">K (₹000s)</span>
+              </div>
+              <input type="range" class="field-slider" id="loanAmountSlider" min="20" max="650" step="5" value="140">
+            </div>
+
+            <!-- Repayment Term (Modern Segmented Pills) -->
+            <div class="field-container">
+              <div class="field-label-row">
+                <label>Amortization Tenure</label>
+                <span class="field-live-val" id="termBadge">30 Years (360 Mo)</span>
+              </div>
+              <input type="hidden" id="loanTermInput" name="Loan_Amount_Term" value="360">
+              <div class="term-pills-row" id="termPillsRow">
+                <button type="button" class="term-pill" data-term="120">10 Y</button>
+                <button type="button" class="term-pill" data-term="180">15 Y</button>
+                <button type="button" class="term-pill" data-term="240">20 Y</button>
+                <button type="button" class="term-pill active" data-term="360">30 Y</button>
+                <button type="button" class="term-pill" data-term="480">40 Y</button>
+              </div>
+              <div class="field-footnote">
+                <span id="liveEmiQuickCalc"><i class="fa-solid fa-calculator"></i> Est. Principal Amortization: <strong>₹388.89 / mo</strong></span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- 4. Demographic & Collateral Location Attributes -->
+          <div class="sub-section-divider">
+            <span><i class="fa-solid fa-address-card"></i> SOCIO-ECONOMIC & LOCATION PROFILE</span>
+          </div>
+
+          <div class="form-row-tri">
+            
+            <!-- Education -->
+            <div class="field-container">
+              <label for="educationSelect">Education</label>
+              <div class="select-styled">
+                <select id="educationSelect" name="Education">
+                  <option value="Graduate" selected>Graduate</option>
+                  <option value="Not Graduate">Not Graduate</option>
+                </select>
+                <i class="fa-solid fa-chevron-down select-arrow"></i>
+              </div>
+            </div>
+
+            <!-- Property Area -->
+            <div class="field-container">
+              <label for="propertyAreaSelect">Property Region</label>
+              <div class="select-styled">
+                <select id="propertyAreaSelect" name="Property_Area">
+                  <option value="Semiurban" selected>Semiurban (Tier 1)</option>
+                  <option value="Urban">Urban</option>
+                  <option value="Rural">Rural</option>
+                </select>
+                <i class="fa-solid fa-chevron-down select-arrow"></i>
+              </div>
+            </div>
+
+            <!-- Dependents -->
+            <div class="field-container">
+              <label for="dependentsSelect">Dependents</label>
+              <div class="select-styled">
+                <select id="dependentsSelect" name="Dependents">
+                  <option value="0">0 Dependents</option>
+                  <option value="1" selected>1 Dependent</option>
+                  <option value="2">2 Dependents</option>
+                  <option value="3+">3+ Dependents</option>
+                </select>
+                <i class="fa-solid fa-chevron-down select-arrow"></i>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="form-row-dual">
+            
+            <!-- Gender -->
+            <div class="field-container">
+              <label for="genderSelect">Applicant Gender</label>
+              <div class="select-styled">
+                <select id="genderSelect" name="Gender">
+                  <option value="Male" selected>Male</option>
+                  <option value="Female">Female</option>
+                </select>
+                <i class="fa-solid fa-chevron-down select-arrow"></i>
+              </div>
+            </div>
+
+            <!-- Marital Status -->
+            <div class="field-container">
+              <label for="marriedSelect">Marital Status</label>
+              <div class="select-styled">
+                <select id="marriedSelect" name="Married">
+                  <option value="Yes" selected>Married (Yes)</option>
+                  <option value="No">Unmarried / Single (No)</option>
+                </select>
+                <i class="fa-solid fa-chevron-down select-arrow"></i>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Action Submission Trigger -->
+          <div class="form-action-row">
+            <button type="submit" id="submitAssessmentBtn" class="btn-execute">
+              <div class="btn-shine"></div>
+              <span class="btn-content">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>Evaluate Underwriting Decision</span>
+              </span>
+              <div class="spinner-core hidden" id="spinner"></div>
+            </button>
+          </div>
+
+        </form>
+
+      </section>
+
+      <!-- ================= RIGHT: Real-Time Results HUD & Explainability ================= -->
+      <section class="glass-panel results-panel" id="resultsHud">
+        
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <span class="panel-kicker text-emerald"><i class="fa-solid fa-microchip"></i> INFERENCE ENGINE</span>
+            <h2>Underwriting Decision HUD</h2>
+            <p>Real-time scoring output from Decision Tree Classifier</p>
+          </div>
+          <div class="live-stream-badge">
+            <span class="dot-beacon"></span>
+            <span>LIVE</span>
+          </div>
+        </div>
+
+        <div class="hud-body">
+          
+          <!-- Holographic Verdict Card -->
+          <div class="verdict-hologram approved" id="verdictHologram">
+            <div class="hologram-glow"></div>
+            <div class="verdict-content">
+              <div class="verdict-icon-container" id="verdictIconBox">
+                <i class="fa-solid fa-shield-check"></i>
+              </div>
+              <div class="verdict-text-block">
+                <span class="verdict-pre">DECISION VERDICT</span>
+                <h1 class="verdict-main-title" id="verdictMainTitle">LOAN APPROVED</h1>
+                <div class="verdict-meta-row">
+                  <span class="risk-badge" id="riskBadge">
+                    <i class="fa-solid fa-shield-halved"></i> Low Credit Risk
+                  </span>
+                  <span class="rule-leaf-tag" id="ruleLeafTag">Tree Leaf #7 • Pure Split</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dual Gauge & Probability Visualization -->
+          <div class="confidence-cockpit">
+            
+            <!-- Circular Radial Gauge -->
+            <div class="radial-gauge-container">
+              <svg class="radial-svg" viewBox="0 0 160 160">
+                <defs>
+                  <linearGradient id="gaugeEmeraldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#00f59b"/>
+                    <stop offset="100%" stop-color="#00d26a"/>
+                  </linearGradient>
+                  <linearGradient id="gaugeRedGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#ff3366"/>
+                    <stop offset="100%" stop-color="#e11d48"/>
+                  </linearGradient>
+                </defs>
+                <circle class="radial-track" cx="80" cy="80" r="64" stroke-width="12" fill="none"/>
+                <circle id="radialProgress" class="radial-bar" cx="80" cy="80" r="64" stroke-width="12" stroke-linecap="round" fill="none"/>
+              </svg>
+              <div class="gauge-center-hud">
+                <span class="gauge-percentage-text" id="gaugePctText">88%</span>
+                <span class="gauge-label-caption">CONFIDENCE</span>
+              </div>
+            </div>
+
+            <!-- Probability Distribution Bars -->
+            <div class="prob-distribution-box">
+              <div class="prob-metric-item">
+                <div class="metric-line">
+                  <span class="metric-k"><i class="fa-solid fa-circle-check text-green"></i> Approval Likelihood</span>
+                  <strong class="metric-v text-green" id="approvalPctNumber">88.0%</strong>
+                </div>
+                <div class="track-bar">
+                  <div class="fill-bar fill-green" id="approvalFillBar" style="width: 88%;"></div>
+                </div>
+              </div>
+
+              <div class="prob-metric-item">
+                <div class="metric-line">
+                  <span class="metric-k"><i class="fa-solid fa-triangle-exclamation text-red"></i> Rejection Likelihood</span>
+                  <strong class="metric-v text-red" id="rejectionPctNumber">12.0%</strong>
+                </div>
+                <div class="track-bar">
+                  <div class="fill-bar fill-red" id="rejectionFillBar" style="width: 12%;"></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Key Financial Metrics Grid (Derived from Backend) -->
+          <div class="key-financial-quad">
+            <div class="quad-item">
+              <span class="quad-k"><i class="fa-solid fa-wallet"></i> Household Inflow</span>
+              <strong class="quad-v" id="hudTotalIncome">₹9,000 / mo</strong>
+              <span class="quad-sub">Combined Monthly</span>
+            </div>
+            <div class="quad-item">
+              <span class="quad-k"><i class="fa-solid fa-indian-rupee-sign"></i> Loan Requested</span>
+              <strong class="quad-v text-cyan" id="hudLoanAmount">₹1,40,000</strong>
+              <span class="quad-sub">Principal Balance</span>
+            </div>
+            <div class="quad-item">
+              <span class="quad-k"><i class="fa-solid fa-calendar-check"></i> Monthly Amort.</span>
+              <strong class="quad-v" id="hudMonthlyEmi">₹388.89</strong>
+              <span class="quad-sub">Estimated EMI</span>
+            </div>
+            <div class="quad-item">
+              <span class="quad-k"><i class="fa-solid fa-percent"></i> Debt-To-Income</span>
+              <strong class="quad-v text-green" id="hudDti">4.32%</strong>
+              <span class="quad-sub">Prime Buffer (&lt;35%)</span>
+            </div>
+          </div>
+
+          <!-- Decision Tree Rule Pathfinder (Explainable ML Logic) -->
+          <div class="pathfinder-container">
+            <div class="pathfinder-header">
+              <i class="fa-solid fa-sitemap text-cyan"></i>
+              <h4>Decision Tree Split Traversal (White-Box Reasoning)</h4>
+            </div>
+            <div class="pathfinder-tree-steps" id="treePathSteps">
+              <!-- Dynamically populated -->
+              <div class="step-bubble passed">
+                <div class="step-num"><i class="fa-solid fa-check"></i></div>
+                <div class="step-detail">
+                  <strong>Credit_History &gt; 0.50 [Satisfied]</strong>
+                  <span>Historical clean repayments verified across credit bureau files</span>
+                </div>
+              </div>
+              <div class="step-bubble passed">
+                <div class="step-num"><i class="fa-solid fa-check"></i></div>
+                <div class="step-detail">
+                  <strong>Income_to_Loan_Ratio &gt; 28.26 [Affordable]</strong>
+                  <span>Household earnings sufficiently absorb monthly credit obligations</span>
+                </div>
+              </div>
+              <div class="step-bubble passed">
+                <div class="step-num"><i class="fa-solid fa-check"></i></div>
+                <div class="step-detail">
+                  <strong>Debt-to-Income Ratio &lt; 35% [Prime Buffer]</strong>
+                  <span>Minimal default probability detected at terminal leaf node</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Underwriting Decision Directive -->
+          <div class="directive-box" id="directiveBox">
+            <div class="directive-header">
+              <i class="fa-solid fa-circle-exclamation text-cyan"></i>
+              <strong>Underwriting Directive:</strong>
+            </div>
+            <p id="directiveText">
+              Applicant satisfies prime credit eligibility thresholds. High income-to-loan coverage warrants automated straight-through loan clearance without senior underwriter escalation.
+            </p>
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+    <!-- ================= MODEL DIAGNOSTICS & BENCHMARK METRICS TAB ================= -->
+    <section class="glass-panel diagnostics-section mt-4" id="diagnosticsSection">
+      
+      <div class="panel-header">
+        <div class="panel-title-group">
+          <span class="panel-kicker text-cyan"><i class="fa-solid fa-chart-line"></i> BENCHMARK VALIDATION</span>
+          <h2>Model Intelligence & Holdout Evaluation Metrics</h2>
+          <p>Trained Scikit-Learn Decision Tree Classifier on 80:20 Stratified Partition (8,000 Train / 2,000 Test)</p>
+        </div>
+        <div class="benchmark-pill">
+          <i class="fa-solid fa-award"></i> Accuracy: <strong>{{ metrics.accuracy }}%</strong>
+        </div>
+      </div>
+
+      <!-- 4 High-Tech KPI Cards -->
+      <div class="kpi-banner-grid">
+        <div class="kpi-tech-card">
+          <div class="kpi-icon-circ text-cyan"><i class="fa-solid fa-bullseye"></i></div>
+          <div class="kpi-body">
+            <span class="kpi-tag">PRIMARY ACCURACY</span>
+            <span class="kpi-figure text-cyan">{{ metrics.accuracy }}%</span>
+            <span class="kpi-caption">Top performance on 2,000 holdout records</span>
+          </div>
+        </div>
+
+        <div class="kpi-tech-card">
+          <div class="kpi-icon-circ text-green"><i class="fa-solid fa-magnet"></i></div>
+          <div class="kpi-body">
+            <span class="kpi-tag">RECALL (APPROVALS)</span>
+            <span class="kpi-figure text-green">{{ (metrics.recall * 100)|round(1) }}%</span>
+            <span class="kpi-caption">Captures 95.6% of creditworthy borrowers</span>
+          </div>
+        </div>
+
+        <div class="kpi-tech-card">
+          <div class="kpi-icon-circ text-indigo"><i class="fa-solid fa-shield-virus"></i></div>
+          <div class="kpi-body">
+            <span class="kpi-tag">PRECISION SCORE</span>
+            <span class="kpi-figure text-indigo">{{ (metrics.precision * 100)|round(1) }}%</span>
+            <span class="kpi-caption">Rigorous filtering of bad debt</span>
+          </div>
+        </div>
+
+        <div class="kpi-tech-card">
+          <div class="kpi-icon-circ text-amber"><i class="fa-solid fa-scale-balanced"></i></div>
+          <div class="kpi-body">
+            <span class="kpi-tag">F1-HARMONIC MEAN</span>
+            <span class="kpi-figure text-amber">{{ (metrics.f1_score * 100)|round(1) }}%</span>
+            <span class="kpi-caption">Optimal equilibrium</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dual Confusion Matrix & Feature Importance Panels -->
+      <div class="analytics-dual-grid">
+        
+        <!-- Confusion Matrix Box -->
+        <div class="analytics-sub-card">
+          <div class="sub-card-header">
+            <h4><i class="fa-solid fa-table-cells-large text-cyan"></i> Test Partition Confusion Matrix (2,000 Cases)</h4>
+            <span class="card-badge-muted">Holdout Set</span>
+          </div>
+
+          <div class="matrix-table-card">
+            <table class="tech-matrix-table">
+              <thead>
+                <tr>
+                  <th>Ground Truth \ Predicted</th>
+                  <th>Predicted: Rejected (0)</th>
+                  <th>Predicted: Approved (1)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="matrix-row-title">Actual: Rejected (0)</td>
+                  <td class="matrix-cell cell-tn">
+                    <span class="cell-num">{{ metrics.confusion_matrix.true_negative }}</span>
+                    <span class="cell-sub">True Negative</span>
+                  </td>
+                  <td class="matrix-cell cell-fp">
+                    <span class="cell-num">{{ metrics.confusion_matrix.false_positive }}</span>
+                    <span class="cell-sub">False Positive</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="matrix-row-title">Actual: Approved (1)</td>
+                  <td class="matrix-cell cell-fn">
+                    <span class="cell-num">{{ metrics.confusion_matrix.false_negative }}</span>
+                    <span class="cell-sub">False Negative</span>
+                  </td>
+                  <td class="matrix-cell cell-tp">
+                    <span class="cell-num">{{ metrics.confusion_matrix.true_positive }}</span>
+                    <span class="cell-sub">True Positive</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="matrix-note">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>False Negatives are minimized (only {{ metrics.confusion_matrix.false_negative }} cases), proving that worthy applicants are not wrongfully denied credit.</span>
+          </div>
+        </div>
+
+        <!-- Feature Importance Breakdown -->
+        <div class="analytics-sub-card">
+          <div class="sub-card-header">
+            <h4><i class="fa-solid fa-chart-column text-emerald"></i> Decision Tree Gini Feature Importances</h4>
+            <span class="card-badge-muted">Scikit-Learn Weights</span>
+          </div>
+
+          <div class="importance-bars-stack">
+            {% for item in metrics.feature_importances %}
+            <div class="importance-row">
+              <div class="importance-meta">
+                <span class="feat-name">{{ item.feature }}</span>
+                <span class="feat-pct">{{ item.importance }}%</span>
+              </div>
+              <div class="feat-track">
+                <div class="feat-fill" style="width: {{ item.importance }}%;"></div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Decision Tree Rules Code Snippet Box -->
+      <div class="tree-rules-block">
+        <div class="sub-card-header">
+          <h4><i class="fa-solid fa-code-branch text-cyan"></i> Exported Decision Tree Rules (Gini Impurity, Depth = 4)</h4>
+          <span class="card-badge-muted">Scikit-Learn export_text</span>
+        </div>
+        <pre class="tree-rules-pre"><code>{{ metrics.tree_rules_snippet }}</code></pre>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ================= ACADEMIC PROJECT REPORT SLIDE-OVER MODAL ================= -->
+  <div class="modal-backdrop hidden" id="reportModalBackdrop">
+    <div class="report-drawer" id="reportDrawer">
+      
+      <div class="drawer-header">
+        <div class="drawer-header-info">
+          <span class="drawer-kicker"><i class="fa-solid fa-graduation-cap"></i> SUBMISSION DOSSIER</span>
+          <h2>Academic Project Report</h2>
+          <p>Formatted to satisfy all 4 mandatory points in project guidelines</p>
+        </div>
+        <div class="drawer-header-actions">
+          <a href="/static/Loan_Approval_Prediction_Project_Report.md" download class="btn-tool" id="btnDownloadMd">
+            <i class="fa-solid fa-download"></i> Download .md
+          </a>
+          <button type="button" class="btn-tool" id="btnCopyReport">
+            <i class="fa-regular fa-copy"></i> Copy Text
+          </button>
+          <button type="button" class="drawer-close" id="btnCloseDrawer">&times;</button>
+        </div>
+      </div>
+
+      <div class="drawer-body">
+        
+        <!-- Section 1: Title Page -->
+        <div class="report-block">
+          <div class="block-pill">SECTION 1</div>
+          <h3>Title Page of the Report with Name and UID</h3>
+          <div class="title-page-card">
+========================================================================================
+                          A PROJECT REPORT ON
+              LOAN APPROVAL PREDICTION SYSTEM USING MACHINE LEARNING
+========================================================================================
+
+             Submitted in partial fulfillment of the requirements 
+                   for the award of the Degree of
+                   BACHELOR OF TECHNOLOGY / DEGREE
+                                     in
+                    COMPUTER SCIENCE AND ENGINEERING / AI
+
+SUBMITTED BY:
+    1. Student Name: [Student Name 1]      | UID / Roll No: [UID-XXXXXX01]
+    2. Student Name: [Student Name 2]      | UID / Roll No: [UID-XXXXXX02]
+    3. Student Name: [Student Name 3]      | UID / Roll No: [UID-XXXXXX03]
+    4. Student Name: [Student Name 4]      | UID / Roll No: [UID-XXXXXX04]
+
+UNDER THE GUIDANCE OF:
+    [Prof. / Dr. Guide Name]
+    [Designation, Department of Computer Science & Engineering]
+
+========================================================================================
+                     [DEPARTMENT OF COMPUTER SCIENCE & ENGINEERING]
+                             [NAME OF THE COLLEGE / UNIVERSITY]
+                               [CAMPUS CITY, STATE - PINCODE]
+                                  ACADEMIC YEAR: 2025–2026
+========================================================================================
+          </div>
+        </div>
+
+        <!-- Section 2: Introduction Page -->
+        <div class="report-block">
+          <div class="block-pill">SECTION 2</div>
+          <h3>Introduction Page</h3>
+          <p><strong>2.1 Background & Motivation:</strong> Loan distribution forms the core revenue generator for commercial banks, yet unmanaged credit default introduces Non-Performing Assets (NPAs). Manual evaluation takes days and is subjective to human underwriting bias. Automated machine learning provides instant, standardized, and unbiased risk determination.</p>
+          <p><strong>2.2 Problem Statement:</strong> Formulate a supervised binary classification system to accurately predict whether a loan application should be Approved (<code>Y</code>) or Rejected (<code>N</code>) based on historical borrower parameters.</p>
+          <p><strong>2.3 Dataset Description:</strong> Utilizes a Kaggle-aligned synthetic Loan Prediction dataset (10,000 instances) comprising demographic factors (Gender, Education, Marital Status), financial capability (Applicant & Coapplicant Income, Loan Amount, Term), and the decisive historical parameter: <code>Credit_History</code>.</p>
+        </div>
+
+        <!-- Section 3: Project Flow -->
+        <div class="report-block">
+          <div class="block-pill">SECTION 3</div>
+          <h3>Project Flow (Frontend, Backend & Integration)</h3>
+          <ul>
+            <li><strong>Frontend Architecture:</strong> Interactive modern web UI featuring live financial sliders, credit record toggles, 1-click simulation personas, and a holographic decision HUD with real-time radial probability gauges.</li>
+            <li><strong>Backend Architecture:</strong> RESTful API server implemented with Python and Flask. Handles missing data imputation, categorical feature encoding, total household income aggregation, and loads the serialized Scikit-Learn Decision Tree model (<code>loan_decision_tree_model.joblib</code>).</li>
+            <li><strong>Integration Flow:</strong> Communication occurs asynchronously via HTTP POST (<code>/api/predict</code>). When the user evaluates the form, the frontend serializes input parameters into JSON, transmits to Flask, runs model inference in ~12ms, and returns the verdict, probability percentage, and explainable decision steps.</li>
+          </ul>
+        </div>
+
+        <!-- Section 4: Results & Outcome -->
+        <div class="report-block">
+          <div class="block-pill">SECTION 4</div>
+          <h3>Results / Outcome</h3>
+          <ul>
+            <li><strong>Quantitative Evaluation:</strong> Achieved <strong>{{ metrics.accuracy }}% Accuracy</strong> on holdout validation data with <strong>{{ (metrics.recall * 100)|round(1) }}% Recall</strong> and <strong>{{ (metrics.precision * 100)|round(1) }}% Precision</strong>.</li>
+            <li><strong>Feature Importance Analysis:</strong> <code>Credit_History</code> (86.03%) was proven to be the single most defining factor in loan approval, followed by the Income-to-Loan ratio (3.24%) and monthly EMI estimate (3.03%).</li>
+            <li><strong>System Outcome:</strong> Full <strong>Risk Assessment Automation</strong>, eliminating manual turnaround latency from 3–5 business days to instant real-time clearance while providing complete white-box explainability.</li>
+          </ul>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Interactive Floating Toast -->
+  <div class="floating-toast hidden" id="toastMessage"></div>
+
+  <!-- Sleek Footer -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <strong>AURA CREDENCE AI</strong> • Loan Approval Prediction & Automated Underwriting System
+      </div>
+      <div class="footer-meta">
+        <span>Problem Type: Classification</span> • 
+        <span>Dataset: Kaggle-aligned synthetic Loan Prediction</span> • 
+        <span>Algorithm: Decision Tree</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

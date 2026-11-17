@@ -1,0 +1,1 @@
+{"version":2,"builds":[{"src":"app.py","use":"@vercel/python","config":{"includeFiles":["backend/**","frontend/**","models/**"]}}],"routes":[{"src":"/(.*)","dest":"app.py"}]}

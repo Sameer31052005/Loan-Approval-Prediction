@@ -1,0 +1,45 @@
+{
+  "model_name": "Decision Tree Classifier",
+  "criterion": "gini",
+  "max_depth": 4,
+  "accuracy": 87.65,
+  "precision": 0.8595,
+  "recall": 0.9924,
+  "f1_score": 0.9212,
+  "confusion_matrix": {
+    "true_negative": 309,
+    "false_positive": 236,
+    "false_negative": 11,
+    "true_positive": 1444
+  },
+  "feature_importances": [
+    {
+      "feature": "Credit_History",
+      "importance": 95.88
+    },
+    {
+      "feature": "Property_Area",
+      "importance": 2.6
+    },
+    {
+      "feature": "Income_to_Loan_Ratio",
+      "importance": 0.87
+    },
+    {
+      "feature": "EMI_Estimate",
+      "importance": 0.29
+    },
+    {
+      "feature": "LoanAmount",
+      "importance": 0.16
+    },
+    {
+      "feature": "Education",
+      "importance": 0.15
+    }
+  ],
+  "dataset_size": 10000,
+  "train_size": 8000,
+  "test_size": 2000,
+  "tree_rules_snippet": "|--- Credit_History <= 0.50\n|   |--- Total_Income <= 5831.00\n|   |   |--- LoanAmount <= 128.50\n|   |   |   |--- Dependents <= 0.50\n|   |   |   |   |--- class: 0\n|   |   |   |--- Dependents >  0.50\n|   |   |   |   |--- class: 0\n|   |   |--- LoanAmount >  128.50\n|   |   |   |--- LoanAmount <= 130.50\n|   |   |   |   |--- class: 0\n|   |   |   |--- LoanAmount >  130.50\n|   |   |   |   |--- class: 0\n|   |--- Total_Income >  5831.00\n|   |   |--- Income_to_Loan_Ratio <= 35.66\n|   |   |   |--- class: 0\n|   |   |--- Income_to_Loan_Ratio >  35.66\n|   |   |   |--- EMI_Estimate <= 340.28\n|   |   |   |   |--- class: 0\n|   |   |   |--- EMI_Estimate >  340.28\n|   |   |   |   |--- class: 0\n|--- Credit_History >  0.50\n|   |--- Property_Area <= 0.50\n|   |   |--- EMI_Estimate <= 1616.67\n|   |   |   |--- Income_to_Loan_Ratio <= 27.38\n|   |   |   |   |--- class: 1\n|   |   |   |--- Income_to_Loan_Ratio >  27.38\n|   |   |   |   |--- class: 1\n|   |   |--- EMI_Estimate >  1616.67\n|   |   |   |--- class: 0\n|   |--- Property_Area >  0.50\n|   |   |--- Property_Area <= 1.50\n|   |   |   |--- Income_to_Loan_Ratio <= 28.12\n|   |   |   |   |--- class: 1\n|   |   |   |--- Income_to_Loan_Ratio >  28.12\n|   |   |   |   |--- class: 1\n|   |   |--- Property_Area >  1.50\n|   |   |   |--- Education <= 0.50\n|   |   |   |   |--- class: 1\n|   |   |   |--- Education >  0.50\n|   |   |   |   |--- class: 1\n"
+}
